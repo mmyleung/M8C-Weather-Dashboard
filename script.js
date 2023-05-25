@@ -1,19 +1,26 @@
 //history array to store searches
 var historyArray = [];
+var cityName;
+//apiKey
+var APIkey = "0fdfab0bcf3590a8e7a2c9aecb8d3388"
+var queryTodayUrl;
 
 //add event listener to form for submit
 $("#search-form").on("submit", function(event) {
     event.preventDefault();
     //store input value into variable
-    var city = $("#search-input").val().trim();
-    var cityName = city.charAt(0).toUpperCase() + city.slice(1);
-    //apiKey
-    var APIkey = "0fdfab0bcf3590a8e7a2c9aecb8d3388"
-    //use geocoding API to return weather by city name
+    getCityName();
+
+
+    // var cityName = city.charAt(0).toUpperCase() + city.slice(1);
+    displayData();
+    
+})
+function displayData() {
     //query url for calling openweathermap API using city name and api key
-    var queryTodayUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIkey + "&units=metric";
-    console.log(queryTodayUrl);
-    console.log(cityName);
+    queryTodayUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIkey + "&units=metric";
+
+    //use geocoding API to return weather by city name
     //calling ajax to get data from openweathermap API
     $.ajax({
         url: queryTodayUrl,
@@ -23,6 +30,7 @@ $("#search-form").on("submit", function(event) {
         //empty children in today container
         $("#today").empty();
         //store required data into variables
+        var name = data.name;
         var date = moment().format('L');
         var icon = data.weather[0].icon;
         var iconContainer = $("<img>").attr("src", `https://openweathermap.org/img/wn/${icon}.png`);
@@ -30,7 +38,7 @@ $("#search-form").on("submit", function(event) {
         var humidity = data.main.humidity;
         var windSpeed = data.wind.speed;
         //create new elements to display data
-        var todayHeader = $("<h2>").text(`${cityName} (${date})`);
+        var todayHeader = $("<h2>").text(`${name} (${date})`);
         todayHeader.append(iconContainer);
         var todayTemp = $("<p>").text(`Temp: ${temperature} °C`);
         var todayWind = $("<p>").text(`Wind: ${windSpeed} KPH`);
@@ -39,7 +47,7 @@ $("#search-form").on("submit", function(event) {
         $("#today").append(todayHeader, todayTemp, todayWind, todayHumidity);
         $("#today").addClass("border border-dark p-1");
         clearSearchField();
-        addSearch(cityName);
+        addSearch(name);
 
         //call api for 5 day forecast data
         //save new queryUrl
@@ -49,6 +57,8 @@ $("#search-form").on("submit", function(event) {
             url: queryFDUrl,
             method: "GET"
         }).then(function(data) {
+            //remove existing children from forecast div
+            $("#forecast").empty();
             console.log(data);
             //add header for 5-Day forecast
             var fdHeader = $("<h4>").text("5-Day Forecast");
@@ -90,8 +100,10 @@ $("#search-form").on("submit", function(event) {
         })
 
     })
-})
-
+}
+function getCityName() {
+    cityName = $("#search-input").val().trim();
+}
 
 function clearSearchField() {
     $("#search-input").val("");
@@ -102,6 +114,10 @@ function clearSearchField() {
 function addSearch(city) {
     //clear previous children from history container
     $("#history").empty();
+    //check if local story for history search is present
+    if(!localStorage.getItem("searches")) {
+        console.log("there is no local storage");
+    }
     //push new city search onto array
     historyArray.push(city);
     //for loop to dynamically add buttons 
@@ -115,3 +131,11 @@ function addSearch(city) {
     }
 
 }
+
+//add event listeners on historic search buttons
+$("#history").on("click", "button", function(event) {
+    console.log("clicked");
+    console.log($(this).text());
+    cityName = $(this).text();
+    displayData();
+})
