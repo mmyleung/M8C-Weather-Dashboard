@@ -11,12 +11,12 @@ $("#search-form").on("submit", function(event) {
     var APIkey = "0fdfab0bcf3590a8e7a2c9aecb8d3388"
     //use geocoding API to return weather by city name
     //query url for calling openweathermap API using city name and api key
-    var queryUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIkey + "&units=metric";
-
+    var queryTodayUrl = "https://api.openweathermap.org/data/2.5/weather?q=" + cityName + "&appid=" + APIkey + "&units=metric";
+    console.log(queryTodayUrl);
     console.log(cityName);
     //calling ajax to get data from openweathermap API
     $.ajax({
-        url: queryUrl,
+        url: queryTodayUrl,
         method: "GET"
     }).then(function(data) {
         console.log(data);
@@ -40,6 +40,55 @@ $("#search-form").on("submit", function(event) {
         $("#today").addClass("border border-dark p-1");
         clearSearchField();
         addSearch(cityName);
+
+        //call api for 5 day forecast data
+        //save new queryUrl
+        var queryFDUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + APIkey + "&units=metric";
+        console.log(queryFDUrl);
+        $.ajax({
+            url: queryFDUrl,
+            method: "GET"
+        }).then(function(data) {
+            console.log(data);
+            //add header for 5-Day forecast
+            var fdHeader = $("<h4>").text("5-Day Forecast");
+            fdHeader.attr("class", "pl-2");
+
+            //create row
+            var row = $("<div>").attr("class", "row pl-3 mr-1");
+            row.attr("id", "forecast-row");
+
+            //array to store the numbers for for loop
+            var eigthHourly = [7, 15, 23, 31, 39];
+            for (let i = 0; i < eigthHourly.length; i++) {
+
+                console.log(data.list[eigthHourly[i]]);
+                //take the date and format it using moment.js
+                var dataSet = data.list[eigthHourly[i]];
+                //store required data into variables
+                var fdDate = moment(dataSet.dt_txt).format('L');
+                var fdIcon = dataSet.weather[0].icon;
+                var fdTemp = dataSet.main.temp;
+                var fdWind = dataSet.wind.speed;
+                var fdHumidity = dataSet.main.humidity;
+
+                //create new elements to display data
+                var column = $("<div>").attr("class", "col text-white m-2 p-2");
+                column.attr("id", "forecastCol");
+                var fdDateHeader = $("<h5>").text(fdDate);
+                var fdIconContainer = $("<img>").attr("src", `https://openweathermap.org/img/wn/${fdIcon}.png`);
+                var fdTempContainer = $("<p>").text(`Temp: ${fdTemp} °C`);
+                var fdWindContainer = $("<p>").text(`Wind: ${fdWind} KPH`);
+                var fdHumidityContainer = $("<p>").text(`Humidity: ${fdHumidity}%`);
+                column.append(fdDateHeader, fdIconContainer, fdTempContainer, fdWindContainer, fdHumidityContainer);
+                row.append(column);
+            }
+            //append fd header and row to forecast div
+            $("#forecast").append(fdHeader, row);
+
+
+        })
+
     })
 })
 
