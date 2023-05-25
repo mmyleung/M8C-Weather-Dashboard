@@ -5,7 +5,8 @@ var historyArray = [];
 $("#search-form").on("submit", function(event) {
     event.preventDefault();
     //store input value into variable
-    var cityName = $("#search-input").val().trim();
+    var city = $("#search-input").val().trim();
+    var cityName = city.charAt(0).toUpperCase() + city.slice(1);
     //apiKey
     var APIkey = "0fdfab0bcf3590a8e7a2c9aecb8d3388"
     //use geocoding API to return weather by city name
