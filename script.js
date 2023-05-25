@@ -23,7 +23,8 @@ $("#search-form").on("submit", function(event) {
         $("#today").append(iconContainer);
         var temperature = data.main.temp;
         var humidity = data.main.humidity;
-        console.log(humidity);
+        var windSpeed = data.wind.speed;
+        console.log(windSpeed);
     })
 })
 
