@@ -16,6 +16,11 @@ $("#search-form").on("submit", function(event) {
         method: "GET"
     }).then(function(data) {
         console.log(data);
+        //store required data into variables
+        var date = moment();
+        var icon = data.weather[0].icon;
+        var iconContainer = $("<img>").attr("src", `https://openweathermap.org/img/wn/${icon}.png`);
+        $("#today").append(iconContainer);
     })
 })
 
