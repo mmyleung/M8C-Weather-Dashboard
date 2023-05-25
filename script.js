@@ -1,10 +1,15 @@
+$(document).ready(function() {
+
 //history array to store searches
 var historyArray = [];
 var cityName;
 //apiKey
 var APIkey = "0fdfab0bcf3590a8e7a2c9aecb8d3388"
 var queryTodayUrl;
+var searches = [];
 
+//check if local storage is present and display historic searches
+displayHistory();
 //add event listener to form for submit
 $("#search-form").on("submit", function(event) {
     event.preventDefault();
@@ -26,7 +31,6 @@ function displayData() {
         url: queryTodayUrl,
         method: "GET"
     }).then(function(data) {
-        console.log(data);
         //empty children in today container
         $("#today").empty();
         //store required data into variables
@@ -52,14 +56,12 @@ function displayData() {
         //call api for 5 day forecast data
         //save new queryUrl
         var queryFDUrl = "https://api.openweathermap.org/data/2.5/forecast?q=" + cityName + "&appid=" + APIkey + "&units=metric";
-        console.log(queryFDUrl);
         $.ajax({
             url: queryFDUrl,
             method: "GET"
         }).then(function(data) {
             //remove existing children from forecast div
             $("#forecast").empty();
-            console.log(data);
             //add header for 5-Day forecast
             var fdHeader = $("<h4>").text("5-Day Forecast");
             fdHeader.attr("class", "pl-2");
@@ -71,8 +73,6 @@ function displayData() {
             //array to store the numbers for for loop
             var eigthHourly = [7, 15, 23, 31, 39];
             for (let i = 0; i < eigthHourly.length; i++) {
-
-                console.log(data.list[eigthHourly[i]]);
                 //take the date and format it using moment.js
                 var dataSet = data.list[eigthHourly[i]];
                 //store required data into variables
@@ -114,28 +114,39 @@ function clearSearchField() {
 function addSearch(city) {
     //clear previous children from history container
     $("#history").empty();
-    //check if local story for history search is present
+    //check if local storage for history search is present
     if(!localStorage.getItem("searches")) {
-        console.log("there is no local storage");
-    }
-    //push new city search onto array
-    historyArray.push(city);
-    //for loop to dynamically add buttons 
-    for (let i = 0; i < historyArray.length; i ++) {
-        //add new button element
-        var historyButton = $("<button>").attr("class", "btn btn-secondary rounded w-100 mt-1");
-        //set button text to array value
-        historyButton.text(historyArray[i]);
-        //target history container and append new buttons
-        $("#history").append(historyButton);
+        searches.push(city);
+        localStorage.setItem("searches", JSON.stringify(searches));
+        displayHistory();
+    } else {
+        searches = JSON.parse(localStorage.getItem("searches"));
+        searches.push(city);
+        localStorage.setItem("searches", JSON.stringify(searches));
+        displayHistory();
     }
 
 }
 
+function displayHistory() {
+    if (!localStorage.getItem("searches")) {
+        return;
+    } else {
+        searches = JSON.parse(localStorage.getItem("searches"));
+        for (let i = 0; i <searches.length; i ++) {
+            //add new button element
+            var historyButton = $("<button>").attr("class", "btn btn-secondary rounded w-100 mt-1");
+            //set button text to array value
+            historyButton.text(searches[i]);
+            //target history container and append new buttons
+            $("#history").append(historyButton);
+        }
+    }
+}
+
 //add event listeners on historic search buttons
 $("#history").on("click", "button", function(event) {
-    console.log("clicked");
-    console.log($(this).text());
     cityName = $(this).text();
     displayData();
+})
 })
