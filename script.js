@@ -22,7 +22,8 @@ $("#search-form").on("submit", function(event) {
         var iconContainer = $("<img>").attr("src", `https://openweathermap.org/img/wn/${icon}.png`);
         $("#today").append(iconContainer);
         var temperature = data.main.temp;
-        console.log(temperature);
+        var humidity = data.main.humidity;
+        console.log(humidity);
     })
 })
 
