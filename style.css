@@ -1,3 +1,7 @@
 .weather-header {
-    background-image: linear-gradient(to right, royalblue , midnightblue);
+    background-image: linear-gradient(to right, dodgerblue , midnightblue);
   }
+
+#search-button {
+    background-color: dodgerblue;
+}
