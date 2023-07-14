@@ -4,7 +4,7 @@ $(document).ready(function() {
 var historyArray = [];
 var cityName;
 //apiKey
-var APIkey = "0fdfab0bcf3590a8e7a2c9aecb8d3388"
+var APIkey;
 var queryTodayUrl;
 var searches = [];
 
